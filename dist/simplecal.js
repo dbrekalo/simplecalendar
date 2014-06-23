@@ -322,7 +322,7 @@
 			} else {
 
 				this.$input.addClass( this.options.calendar_class + '_invalid');
-				this.$input.val( this.input_val_backup );
+				this.options.disableInvalidInput && this.$input.val( this.input_val_backup );
 				return false;
 
 			}
@@ -469,6 +469,7 @@
 		attached: false,
 		disableWhenTouch: false,
 		mobile_breakpoint: null,
+		disableInvalidInput: false,
 
 		max_date: null,
 		min_date: null,
