@@ -378,8 +378,9 @@
 			this.$el.find(prepareSelector(this.getDateVars(new Date()))).addClass( this.options.date_today_class );
 
 			// selected date
-			if ( this.$input.val().length ) {
-				this.$el.find(prepareSelector(this.getDateVars(this.$input.val()))).addClass( this.options.date_active_class );
+			var inputVal = this.$input.val();
+			if ( inputVal.length && this.getDateVars(inputVal)) {
+				this.$el.find(prepareSelector(this.getDateVars(inputVal))).addClass( this.options.date_active_class );
 			}
 
 		},
