@@ -203,6 +203,8 @@
 
 			this.$input.data('class') && this.$el.addClass( this.$input.data('class') );
 			this.$input.data('date-format') && (this.options.dateFormat = this.$input.data('date-format'));
+			this.$input.data('time-step') && (this.options.timeStep = parseInt(this.$input.data('time-step'),10));
+			typeof this.$input.data('show-seconds') !== 'undefined' && (this.options.showSeconds = !!this.$input.data('show-seconds'));
 
 			this.options.timepicker && this.setupTimePicker();
 
@@ -495,7 +497,10 @@
 			this.$timeEl = $('<div>').addClass(this.options.timeElClass).appendTo(this.$el);
 			this.$timePreview = $('<div>').addClass(this.options.timePreviewClass).appendTo(this.$timeEl);
 
-			this.$inputTime = $('<input>').val(this.getInputTimeVal()).appendTo(this.$timeEl).simpleRangeSlider($.extend({
+			var initVal = this.getInputTimeVal(),
+				time = initVal.length ? this.parseTime(initVal) : 0;
+
+			this.$inputTime = $('<input>').val(time).appendTo(this.$timeEl).simpleRangeSlider($.extend({
 
 				'maxVal': 24*60*60-1,
 				'step': this.options.timeStep,
@@ -524,6 +529,18 @@
 				seconds = time - hours*60*60 - minutes*60;
 
 			return paddNum(hours,2) + ':' + paddNum(minutes,2) + (this.options.showSeconds ?  ':' + paddNum(seconds,2) : '');
+
+		},
+
+		parseTime: function(timeString){
+
+			var time = 0;
+
+			$.each(timeString.split(':'), function(index, num){
+				time += Math.pow(60, 2-index)*num;
+			});
+
+			return time;
 
 		},
 
