@@ -112,6 +112,9 @@
 
 	Simplecal.getHtml = memoize(function(forMonth, forYear) {
 
+		forMonth = parseInt(forMonth,10);
+		forYear = parseInt(forYear,10);
+
 		var dayOfTheWeek = new Date(forYear, forMonth-1, 1).getDay();
 		if ( dayOfTheWeek === 0 ) { dayOfTheWeek = 7; }
 
@@ -159,11 +162,46 @@
 
 		rowsHtml += '</tr>';
 
+		// Prepare year and month heading
+
+		var monthString = this.options.months[forMonth-1],
+			yearString = forYear;
+
+		if (this.options.changeMonth) {
+
+			monthString = '<select class="'+ this.options.monthSelectClass +'">';
+
+			for (var i = 0; i < 12; i++) {
+				monthString += '<option data-to-year="'+ forYear +'" value="'+ (i+1) +'" '+ (forMonth - 1 === i ? ' selected="selected"' : '') +'>'+ this.options.months[i] +'</option>';
+			}
+
+			monthString += '</select>';
+
+		}
+
+		if (this.options.changeYear) {
+
+			yearString = '<select class="'+ this.options.yearSelectClass +'">';
+
+			for (var i = 100; i > 0; i--) {
+				yearString += '<option value="'+ (forYear - i) +'">'+ (forYear - i) +'</option>';
+			}
+
+			yearString += '<option selected="selected" value="'+ forYear +'">'+ forYear +'</option>';
+
+			for (var i = 1; i < 100; i++) {
+				yearString += '<option value="'+ (forYear + i) +'">'+ (forYear + i) +'</option>';
+			}
+
+			yearString += '</select>';
+
+		}
+
 		// Return calendar html
 
 		var cal_html =
 			'<div class="meta">' +
-				'<p class="meta_title"><span>'+this.options.months[forMonth-1] + ' ' + forYear +'</span></p>'+
+				'<p class="meta_title"><span class="month">'+ monthString + '</span> <span class="year">' + yearString +'</span></p>'+
 				'<a data-to-month="'+ prevMonthNum +'" data-to-year="'+prevMonthYearNum+'" data-current-month="'+ forMonth +'" data-current-year="'+ forYear +'" class="'+ this.options.monthChangeClass + ' ' + this.options.prevMonthClass +'"><span>'+ this.options.prevMonthText +'</span></a>' +
 				'<a data-to-month="'+ nextMonthNum +'" data-to-year="'+nextMonthYearNum+'" data-current-month="'+ forMonth +'" data-current-year="'+ forYear +'" class="'+ this.options.monthChangeClass + ' ' + this.options.nextMonthClass +'"><span>'+ this.options.nextMonthText +'</span></a>' +
 			'</div>' +
@@ -198,13 +236,17 @@
 			this.ens = '.simplecal' + (++instanceCounter);
 			this.inputDateValBackup = this.getInputDateVal();
 
-			if ( this.options.attached ) { this.showCalendar(); this.$el.addClass(this.options.attachedClass); }
-			if ( this.options.mobileBreakpoint && $window.outerWidth() <= this.options.mobileBreakpoint ) { this.setReadonly(true); }
-
 			this.$input.data('class') && this.$el.addClass( this.$input.data('class') );
 			this.$input.data('date-format') && (this.options.dateFormat = this.$input.data('date-format'));
 			this.$input.data('time-step') && (this.options.timeStep = parseInt(this.$input.data('time-step'),10));
+
+			this.$input.data('change-month') && (this.options.changeMonth = true);
+			this.$input.data('change-year') && (this.options.changeYear = true);
+
 			typeof this.$input.data('show-seconds') !== 'undefined' && (this.options.showSeconds = !!this.$input.data('show-seconds'));
+
+			if ( this.options.attached ) { this.showCalendar(); this.$el.addClass(this.options.attachedClass); }
+			if ( this.options.mobileBreakpoint && $window.outerWidth() <= this.options.mobileBreakpoint ) { this.setReadonly(true); }
 
 			this.options.timepicker && this.setupTimePicker();
 
@@ -262,6 +304,10 @@
 			// Change month
 			this.$el.on('click' + this.ens, monthChangeSelector, $.proxy(this.onChangeMonth, this));
 
+			// Change month and year select
+			this.options.changeMonth && this.$el.on('change' + this.ens, '.' + this.options.monthSelectClass.split(' ').join('.'), $.proxy(this.onMonthSelect, this));
+			this.options.changeYear && this.$el.on('change' + this.ens, '.' + this.options.yearSelectClass.split(' ').join('.'), $.proxy(this.onYearSelect, this));
+
 			// Custom events
 			this.$el.on('show', $.proxy(this.onShow, this));
 			this.$el.on('close', $.proxy(this.onClose, this));
@@ -302,6 +348,34 @@
 			var $target = $(e.currentTarget);
 			this.$calEl.html( this.getCalendarHtml( $target.data('to-month'), $target.data('to-year') ) );
 			this.setupMarkers();
+			if( !this.options.attached ) { this.setupPosition(); }
+
+			return false;
+
+		},
+
+		onMonthSelect: function(e){
+
+			var $select = $(e.currentTarget),
+				$option = $select.find(":selected");
+
+			this.$calEl.html(this.getCalendarHtml($option.val(), $option.data('to-year')));
+			this.setupMarkers();
+
+			if( !this.options.attached ) { this.setupPosition(); }
+
+			return false;
+
+		},
+
+		onYearSelect: function(e){
+
+			var $select = $(e.currentTarget),
+				$option = $select.find(":selected");
+
+			this.$calEl.html(this.getCalendarHtml(1 ,$option.val()));
+			this.setupMarkers();
+
 			if( !this.options.attached ) { this.setupPosition(); }
 
 			return false;
@@ -451,10 +525,9 @@
 			}
 
 			// Large screens
-			var calWidth  = this.$el.outerWidth();
-			var calHeight = this.$el.outerHeight();
-
-			var positionMap = {};
+			var calWidth  = this.$el.outerWidth(),
+				calHeight = this.$el.outerHeight(),
+				positionMap = {};
 
 			// position checks
 			if ( (calWidth + inputOffset.left) > winWidth ) { // cuts to the right
@@ -462,7 +535,7 @@
 				positionMap.left = inputOffset.left - ( calWidth - inputWidth );
 				positionMap.top = inputOffset.top + inputHeight;
 
-			} else if ( calHeight + inputOffset.top > winHeight ){ // cuts at bottom
+			} else if ( calHeight + inputOffset.top + inputHeight > winHeight + $window.scrollTop() ){ // cuts at bottom
 
 				positionMap.left = inputOffset.left;
 				positionMap.top = inputOffset.top - calHeight;
@@ -590,6 +663,11 @@
 		monthChangeClass: 'month_control',
 		nextMonthClass: 'next',
 		prevMonthClass: 'prev',
+		monthSelectClass: 'sc_month_select',
+		yearSelectClass: 'sc_year_select',
+
+		changeMonth: false,
+		changeYear: false,
 
 		timepicker: false,
 		timeElClass: 'simplecal_time',
