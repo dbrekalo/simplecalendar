@@ -110,7 +110,7 @@
 
 	};
 
-	Simplecal.getHtml = memoize(function(forMonth, forYear) {
+	Simplecal.getHtml = function(forMonth, forYear) {
 
 		forMonth = parseInt(forMonth,10);
 		forYear = parseInt(forYear,10);
@@ -226,7 +226,7 @@
 
 		return calHtml;
 
-	}, function(a,b){ return a+':'+b; });
+	};
 
 
 	$.extend(Simplecal.prototype,{
