@@ -199,7 +199,7 @@
 
 		// Return calendar html
 
-		var cal_html =
+		var calHtml =
 			'<div class="meta">' +
 				'<p class="meta_title"><span class="month">'+ monthString + '</span> <span class="year">' + yearString +'</span></p>'+
 				'<a data-to-month="'+ prevMonthNum +'" data-to-year="'+prevMonthYearNum+'" data-current-month="'+ forMonth +'" data-current-year="'+ forYear +'" class="'+ this.options.monthChangeClass + ' ' + this.options.prevMonthClass +'"><span>'+ this.options.prevMonthText +'</span></a>' +
@@ -220,7 +220,11 @@
 				'</tbody>' +
 			'</table>';
 
-		return cal_html;
+		if (this.options.todayButton){
+			calHtml += '<button class="'+ this.options.todayButtonClass +'">'+ this.options.todayButtonText +'</button>' ;
+		}
+
+		return calHtml;
 
 	}, function(a,b){ return a+':'+b; });
 
@@ -308,6 +312,9 @@
 			this.options.changeMonth && this.$el.on('change' + this.ens, '.' + this.options.monthSelectClass.split(' ').join('.'), $.proxy(this.onMonthSelect, this));
 			this.options.changeYear && this.$el.on('change' + this.ens, '.' + this.options.yearSelectClass.split(' ').join('.'), $.proxy(this.onYearSelect, this));
 
+			// Today button
+			this.options.todayButton && this.$el.on('click' + this.ens, '.' + this.options.todayButtonClass.split(' ').join('.'), $.proxy(this.onClickTodayButton, this));
+
 			// Custom events
 			this.$el.on('show', $.proxy(this.onShow, this));
 			this.$el.on('close', $.proxy(this.onClose, this));
@@ -379,6 +386,13 @@
 			if( !this.options.attached ) { this.setupPosition(); }
 
 			return false;
+
+		},
+
+		onClickTodayButton: function(e){
+
+			e.preventDefault();
+			this.setDate(new Date(), this.options.format);
 
 		},
 
@@ -668,6 +682,10 @@
 
 		changeMonth: false,
 		changeYear: false,
+
+		todayButton: false,
+		todayButtonClass: 'todayBtn',
+		todayButtonText: 'Today',
 
 		timepicker: false,
 		timeElClass: 'simplecal_time',
