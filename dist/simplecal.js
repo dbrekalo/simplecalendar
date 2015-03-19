@@ -407,16 +407,18 @@
 					self.setupPosition();
 				});
 
-				$document.on('click'+this.ens+' focusout'+this.ens+' keyup'+this.ens, function(e){
+				setTimeout(function () {
+					$document.on('click'+this.ens+' focusout'+this.ens+' keyup'+this.ens, function(e){
 
-					if (e.keyCode === 27 && self.opened ) {
-						self.close();
-						return;
-					}
+						if (e.keyCode === 27 && self.opened ) {
+							self.close();
+							return;
+						}
 
-					!$(e.target).is( self.$input ) && !$.contains(self.$el[0], e.target) && self.close();
+						!$(e.target).is( self.$input ) && !$.contains(self.$el[0], e.target) && self.close();
 
-				});
+					});
+				}, 0);
 
 			}
 
