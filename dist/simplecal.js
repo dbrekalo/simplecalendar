@@ -171,7 +171,7 @@
 
 			monthString = '<select class="'+ this.options.monthSelectClass +'">';
 
-			for (var i = 0; i < 12; i++) {
+			for (i = 0; i < 12; i++) {
 				monthString += '<option data-to-year="'+ forYear +'" value="'+ (i+1) +'" '+ (forMonth - 1 === i ? ' selected="selected"' : '') +'>'+ this.options.months[i] +'</option>';
 			}
 
@@ -183,13 +183,13 @@
 
 			yearString = '<select class="'+ this.options.yearSelectClass +'">';
 
-			for (var i = 100; i > 0; i--) {
+			for (i = 100; i > 0; i--) {
 				yearString += '<option value="'+ (forYear - i) +'">'+ (forYear - i) +'</option>';
 			}
 
 			yearString += '<option selected="selected" value="'+ forYear +'">'+ forYear +'</option>';
 
-			for (var i = 1; i < 100; i++) {
+			for (i = 1; i < 100; i++) {
 				yearString += '<option value="'+ (forYear + i) +'">'+ (forYear + i) +'</option>';
 			}
 
@@ -408,7 +408,7 @@
 				});
 
 				setTimeout(function(){
-					$document.on('click'+this.ens+' focusout'+this.ens+' keyup'+this.ens, function(e){
+					$document.on('click'+self.ens+' focusout'+self.ens+' keyup'+self.ens, function(e){
 
 						if (e.keyCode === 27 && self.opened ) {
 							self.close();
