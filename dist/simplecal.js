@@ -23,7 +23,7 @@
 			return Object.prototype.hasOwnProperty.call(memo, key) ? memo[key] : (memo[key] = func.apply(this, arguments));
 		};
 
-  	},
+	},
 
 	paddNum = memoize(function(num, padsize) {
 
@@ -147,17 +147,17 @@
 			if( dayOfTheWeek > 7) { rowsHtml += '</tr><tr>'; dayOfTheWeek = 1; }
 
 			var dateFormated = paddNum(day,2) +'-'+ paddNum(forMonth,2) +'-'+ paddNum(forYear,4),
-                dateStandard = paddNum(forYear,4) +'-'+ paddNum(forMonth,2) +'-'+ paddNum(day,2);
+				dateStandard = paddNum(forYear,4) +'-'+ paddNum(forMonth,2) +'-'+ paddNum(day,2);
 
-            if ( new Date(this.options.allowedDates.from) > new Date(dateStandard) || new Date(this.options.allowedDates.to) < new Date(dateStandard) ) {
+			if ( new Date(this.options.allowedDates.from) > new Date(dateStandard) || new Date(this.options.allowedDates.to) < new Date(dateStandard) ) {
 
-                rowsHtml += '<td><span class="'+ this.options.cellDisabledClass +'">'+ day +'</span></td>';
+				rowsHtml += '<td><span class="'+ this.options.cellDisabledClass +'">'+ day +'</span></td>';
 
-            } else {
+			} else {
 
-                rowsHtml += '<td><a class="'+ this.options.cellClass +' '+cellClassPrefix+dateFormated+'" data-date="'+ dateFormated +'">' + day + '</a></td>';
+				rowsHtml += '<td><a class="'+ this.options.cellClass +' '+cellClassPrefix+dateFormated+'" data-date="'+ dateFormated +'">' + day + '</a></td>';
 
-            }
+			}
 
 			dayOfTheWeek++;
 			day++;
