@@ -1,4 +1,14 @@
-;(function ($, window,document){
+(function(root, factory) {
+
+    if (typeof define === 'function' && define.amd) {
+        define(['jquery'], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory(require('jquery'));
+    } else {
+        factory(root.jQuery);
+    }
+
+}(this, function($) {
 
 	"use strict";
 
@@ -84,7 +94,7 @@
 
 	function Simplecal(input, options) {
 
-		this.options = $.extend({}, $.simplecal.defaults, options);
+		this.options = $.extend({}, Simplecal.defaults, options);
 		this.$input = $(input);
 		this.init();
 
@@ -668,9 +678,9 @@
 		});
 	};
 
-	$.simplecal = Simplecal;
+	$.Simplecal = $.simplecal = Simplecal;
 
-	$.simplecal.defaults = {
+	Simplecal.defaults = {
 
 		dateFormat: 'dd.mm.yyyy',
 		attached: false,
@@ -715,4 +725,6 @@
 
 	};
 
-})(window.jQuery || window.Zepto, window, document);
+	return $;
+
+}));
