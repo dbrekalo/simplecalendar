@@ -1,9 +1,9 @@
 (function(root, factory) {
 
     if (typeof define === 'function' && define.amd) {
-        define(['jquery', 'simplecal'], factory);
+        define(['jquery'], factory);
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('jquery'), require('simplecal'));
+        module.exports = factory(require('jquery'));
     } else {
         factory(root.jQuery);
     }
@@ -94,7 +94,7 @@
 
 	function Simplecal(input, options) {
 
-		this.options = $.extend({}, $.simplecal.defaults, options);
+		this.options = $.extend({}, Simplecal.defaults, options);
 		this.$input = $(input);
 		this.init();
 
@@ -680,7 +680,7 @@
 
 	$.Simplecal = $.simplecal = Simplecal;
 
-	$.Simplecal.defaults = {
+	Simplecal.defaults = {
 
 		dateFormat: 'dd.mm.yyyy',
 		attached: false,
