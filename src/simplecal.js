@@ -1,9 +1,9 @@
 (function(root, factory) {
 
     if (typeof define === 'function' && define.amd) {
-        define(['jquery', 'js/components/simplecal'], factory);
+        define(['jquery', 'simplecal'], factory);
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('jquery'), require('js/components/simplecal'));
+        module.exports = factory(require('jquery'), require('simplecal'));
     } else {
         factory(root.jQuery);
     }
@@ -678,7 +678,7 @@
 		});
 	};
 
-	$.Simplecal = Simplecal;
+	$.Simplecal = $.simplecal = Simplecal;
 
 	$.Simplecal.defaults = {
 

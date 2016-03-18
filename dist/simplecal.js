@@ -1,4 +1,14 @@
-;(function ($, window,document){
+(function(root, factory) {
+
+    if (typeof define === 'function' && define.amd) {
+        define(['jquery', 'simplecal'], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory(require('jquery'), require('simplecal'));
+    } else {
+        factory(root.jQuery);
+    }
+
+}(this, function($) {
 
 	"use strict";
 
@@ -668,9 +678,9 @@
 		});
 	};
 
-	$.simplecal = Simplecal;
+	$.Simplecal = $.simplecal = Simplecal;
 
-	$.simplecal.defaults = {
+	$.Simplecal.defaults = {
 
 		dateFormat: 'dd.mm.yyyy',
 		attached: false,
@@ -715,4 +725,6 @@
 
 	};
 
-})(window.jQuery || window.Zepto, window, document);
+	return $;
+
+}));
