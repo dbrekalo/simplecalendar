@@ -12,9 +12,9 @@
 
 	"use strict";
 
-	var	$window = window.app && window.app.$window || $(window),
-		$document = window.app && window.app.$document || $(document),
-		$body = window.app && window.app.$body || $('body'),
+	var	$window = $(window),
+		$document = $(document),
+		$body = $('body'),
 		instanceCounter = 0,
 		slice = Array.prototype.slice,
 		cellClassPrefix = 'scDate-',
@@ -262,8 +262,6 @@
 
 			this.$input.data('class') && this.$el.addClass( this.$input.data('class') );
 			this.$input.data('date-format') && (this.options.dateFormat = this.$input.data('date-format'));
-			this.$input.data('time-step') && (this.options.timeStep = parseInt(this.$input.data('time-step'),10));
-
 			this.$input.data('change-month') && (this.options.changeMonth = true);
 			this.$input.data('change-year') && (this.options.changeYear = true);
 
@@ -292,7 +290,7 @@
 
 		setInputDateVal: function(value){
 
-			this.$input.val(this.options.timepicker?  value + ' ' + this.formatTime(parseInt(this.$inputTime.val(),10)) : value);
+			this.$input.val(this.options.timepicker?  value + ' ' + this.getInputTimeVal() : value);
 			return this;
 
 		},
@@ -305,6 +303,10 @@
 		},
 
 		setInputTimeVal: function(value){
+
+			if (!this.getInputDateVal()) {
+				this.setDate(new Date(), this.options.format);
+			}
 
 			this.$input.val(this.$input.val().split(' ')[0] + ' ' + value);
 			return this;
@@ -358,6 +360,7 @@
 			var date = this.getInputDateVal().length === 0 ? this.getDateVars( new Date() ) : this.getDateVars(this.getInputDateVal());
 			this.$calEl.html(this.getCalendarHtml(date.month, date.year));
 			this.setupMarkers();
+			this.options.timepicker && this.setupTimePicker();
 
 		},
 
@@ -412,7 +415,16 @@
 		onClickTodayButton: function(e){
 
 			e.preventDefault();
-			this.setDate(new Date(), this.options.format);
+
+			var date = new Date();
+			var dateVars = this.getDateVars(new Date());
+
+			this.setDate(date, this.options.format);
+
+			this.$calEl.html(this.getCalendarHtml(dateVars.month, dateVars.year));
+			this.setupMarkers();
+
+			if( !this.options.attached ) { this.setupPosition(); }
 
 		},
 
@@ -602,41 +614,72 @@
 
 		setupTimePicker: function(){
 
-			this.$timeEl = $('<div>').addClass(this.options.timeElClass).appendTo(this.$el);
-			this.$timePreview = $('<div>').addClass(this.options.timePreviewClass).appendTo(this.$timeEl);
+			var self = this;
+			var time = this.formatTime(this.parseTime(this.getInputTimeVal() || ''), true);
 
-			var initVal = this.getInputTimeVal(),
-				time = initVal.length ? this.parseTime(initVal) : 0;
+			this.$timeEl && this.$timeEl.remove();
 
-			this.$inputTime = $('<input>').val(time).appendTo(this.$timeEl).simpleRangeSlider($.extend({
+			var $timeEl = this.$timeEl = $('<div>').addClass(this.options.timeElClass).appendTo(this.$el);
+			var $hoursInput = $('<input type="text"/>').val(paddNum(time.hours,2));
+			var $minutesInput = $('<input type="text"/>').val(paddNum(time.minutes,2));
+			var $secondsInput = $('<input type="text"/>').val(paddNum(time.seconds,2));
 
-				'maxVal': 24*60*60-1,
-				'step': this.options.timeStep,
-				'onUpdateView': $.proxy(function(value){
+			var addInput = function($input, min, max) {
 
-					var timeText = this.formatTime(parseInt(value,10));
-					this.$timePreview.text(timeText);
-					if (this.$input.val().length !== 0) { this.setInputTimeVal(timeText); }
+				$input.on('keydown', function(e) {
 
-				}, this)
+					var value = parseInt($input.val(), 10);
 
-			}, this.options.rangeSliderOptions)).on('change', $.proxy(function(){
+					if (e.which === 38 || e.which === 40) {
+						e.preventDefault();
+						value = value + (e.which === 38 ? 1 : -1);
+						$input.val(value).trigger('input');
+					}
 
-				this.$input.trigger('change');
+				});
 
-			}, this));
+				$input.on('input', function(e) {
 
-			this.rangeSliderApi = this.$inputTime.data('simpleRangeSlider');
+					e.preventDefault();
+
+					var value = parseInt($input.val(), 10);
+
+					if (value > max) { value = max; $input.val(max); }
+					if (value < min) { value = min; $input.val(min); }
+					if (value < 10) { value = paddNum(value,2); }
+
+					$input.val(value);
+
+					var totalSeconds = (parseInt($hoursInput.val(), 10) * 60 *60) + (parseInt($minutesInput.val(), 10) * 60) + (parseInt($secondsInput.val(), 10));
+					self.setInputTimeVal(self.formatTime(totalSeconds));
+					self.$input.trigger('change');
+
+				});
+			};
+
+			addInput($hoursInput, 0, 23);
+			addInput($minutesInput, 0, 59);
+			addInput($secondsInput, 0, 59);
+
+			$timeEl.append($hoursInput).append(':').append($minutesInput);
+
+			if (this.options.showSeconds) {
+				$timeEl.append(':').append($secondsInput);
+			}
 
 		},
 
-		formatTime: function(time){
+		formatTime: function(time, asObject){
 
-			var hours = Math.floor(time/(60*60)),
-				minutes = Math.floor((time - hours*60*60)/60),
-				seconds = time - hours*60*60 - minutes*60;
+			var	hours = Math.floor(time/(60*60));
+			var minutes = Math.floor((time - hours*60*60)/60);
+			var seconds = time - hours*60*60 - minutes*60;
 
-			return paddNum(hours,2) + ':' + paddNum(minutes,2) + (this.options.showSeconds ?  ':' + paddNum(seconds,2) : '');
+			if (asObject) {
+				return {hours: hours, minutes: minutes, seconds: seconds};
+			} else {
+				return paddNum(hours,2) + ':' + paddNum(minutes,2) + (this.options.showSeconds ?  ':' + paddNum(seconds,2) : '');
+			}
 
 		},
 
@@ -711,11 +754,8 @@
 		allowedDates: false,
 
 		timepicker: false,
+		showSeconds: false,
 		timeElClass: 'simplecal_time',
-		timePreviewClass: 'simplecal_time_preview',
-		timeStep: 60*5,
-		showSeconds: true,
-		rangeSliderOptions: {},
 
 		prevMonthText: 'Previous month',
 		nextMonthText: 'Next month',

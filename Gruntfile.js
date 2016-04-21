@@ -52,6 +52,6 @@ module.exports = function(grunt) {
 	require('load-grunt-tasks')(grunt);
 
 	grunt.registerTask('default', ['watch']);
-	grunt.registerTask('build', ['uglify', 'copy']);
+	grunt.registerTask('build', ['jshint', 'uglify', 'copy']);
 
 };
