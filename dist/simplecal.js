@@ -440,7 +440,7 @@
 				});
 
 				setTimeout(function(){
-					$document.on('click'+self.ens+' focusout'+self.ens+' keyup'+self.ens, function(e){
+					$document.on('click'+self.ens+' keyup'+self.ens, function(e){
 
 						if (e.keyCode === 27 && self.opened ) {
 							self.close();
